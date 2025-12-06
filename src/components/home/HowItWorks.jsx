@@ -1,5 +1,6 @@
 import React from 'react';
-import { FaClipboardList, FaCut, FaSewingMachine, FaCheckCircle, FaTruck } from 'react-icons/fa';
+import { FaClipboardList, FaCut, FaCheckCircle, FaTruck } from 'react-icons/fa';
+import { GiSewingMachine } from 'react-icons/gi';
 
 const HowItWorks = () => {
     const steps = [
@@ -16,7 +17,7 @@ const HowItWorks = () => {
             color: 'from-purple-500 to-pink-500',
         },
         {
-            icon: <FaSewingMachine className="text-4xl" />,
+            icon: <GiSewingMachine className="text-4xl" />,
             title: 'Sewing',
             description: 'Pieces are assembled and stitched together',
             color: 'from-green-500 to-emerald-500',

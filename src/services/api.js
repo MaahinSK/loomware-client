@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// Hardcoding API URL to ensure we hit production, ignoring potentially stale local .env
+const API_URL = 'https://loomware-serverv2.vercel.app/api';
 
 const api = axios.create({
     baseURL: API_URL,
