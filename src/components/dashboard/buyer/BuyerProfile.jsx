@@ -1,0 +1,1 @@
+export default function BuyerProfile() { return <div>BuyerProfile</div>; }

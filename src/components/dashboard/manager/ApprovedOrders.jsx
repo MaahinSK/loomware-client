@@ -1,0 +1,1 @@
+export default function ApprovedOrders() { return <div>ApprovedOrders</div>; }
