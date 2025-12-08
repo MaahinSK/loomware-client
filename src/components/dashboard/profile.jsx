@@ -103,8 +103,8 @@ const Profile = () => {
                                 <div className="flex items-center justify-between">
                                     <span className="text-gray-600">Verification</span>
                                     <span className={`px-2 py-1 rounded text-xs ${user.status === 'approved'
-                                            ? 'bg-green-100 text-green-800'
-                                            : 'bg-yellow-100 text-yellow-800'
+                                        ? 'bg-green-100 text-green-800'
+                                        : 'bg-yellow-100 text-yellow-800'
                                         }`}>
                                         {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
                                     </span>
@@ -112,7 +112,7 @@ const Profile = () => {
                                 <div className="flex items-center justify-between">
                                     <span className="text-gray-600">Member Since</span>
                                     <span className="text-gray-800">
-                                        {format(new Date(user.createdAt), 'MMM yyyy')}
+                                        {user.createdAt ? format(new Date(user.createdAt), 'MMM yyyy') : 'N/A'}
                                     </span>
                                 </div>
                             </div>
@@ -216,7 +216,7 @@ const Profile = () => {
                                             <div>
                                                 <p className="text-sm text-gray-600">Member Since</p>
                                                 <p className="font-medium text-gray-800">
-                                                    {format(new Date(user.createdAt), 'MMMM dd, yyyy')}
+                                                    {user.createdAt ? format(new Date(user.createdAt), 'MMMM dd, yyyy') : 'N/A'}
                                                 </p>
                                             </div>
                                         </div>

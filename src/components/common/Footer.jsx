@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaFacebook, FaTwitter, FaGithub, FaInstagram, FaLinkedin, FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaXTwitter } from "react-icons/fa6";
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
@@ -25,12 +26,12 @@ const Footer = () => {
                                 <FaFacebook size={20} />
                             </a>
                             <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                                <FaTwitter size={20} />
+                                <FaXTwitter size={20} />
                             </a>
-                            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                                <FaInstagram size={20} />
+                            <a href="https://github.com/MaahinSK" className="text-gray-400 hover:text-white transition-colors">
+                                <FaGithub size={20} />
                             </a>
-                            <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                            <a href="http://linkedin.com/in/maahin-sikder" className="text-gray-400 hover:text-white transition-colors">
                                 <FaLinkedin size={20} />
                             </a>
                         </div>
@@ -85,7 +86,7 @@ const Footer = () => {
                             </li>
                             <li className="flex items-center space-x-3">
                                 <FaPhone className="text-primary-400" />
-                                <span className="text-gray-400">+880 1234 567890</span>
+                                <span className="text-gray-400">+880 17151476475</span>
                             </li>
                             <li className="flex items-center space-x-3">
                                 <FaEnvelope className="text-primary-400" />
@@ -101,7 +102,7 @@ const Footer = () => {
                 {/* Copyright */}
                 <div className="flex flex-col md:flex-row justify-between items-center">
                     <p className="text-gray-400">
-                        © {currentYear} LoomWare. All rights reserved.
+                        © {currentYear} LoomWare. All rights reserved by Maahin Sikder.
                     </p>
                     <div className="flex space-x-6 mt-4 md:mt-0">
                         <Link to="/privacy" className="text-gray-400 hover:text-white transition-colors">

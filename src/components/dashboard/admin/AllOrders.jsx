@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../../services/api';
 import { toast } from 'react-toastify';
 import { Helmet } from 'react-helmet-async';
 import Button from '../../common/Button';
@@ -40,7 +40,7 @@ const AllOrders = () => {
 
     const fetchOrders = async () => {
         try {
-            const response = await axios.get('/api/orders/admin');
+            const response = await api.get('/orders/admin');
             setOrders(response.data.data.orders);
         } catch (error) {
             toast.error('Failed to fetch orders');
@@ -63,7 +63,7 @@ const AllOrders = () => {
 
         // Status filter
         if (statusFilter !== 'all') {
-            filtered = filtered.filter(order => order.status === statusFilter);
+            filtered = filtered.filter(order => order.orderStatus === statusFilter);
         }
 
         // Date range filter
@@ -83,7 +83,7 @@ const AllOrders = () => {
 
     const updateOrderStatus = async (orderId, status) => {
         try {
-            await axios.put(`/api/orders/${orderId}/status`, { status });
+            await api.put(`/orders/${orderId}/status`, { status });
             toast.success(`Order ${status} successfully`);
             fetchOrders();
             setShowUpdateModal(false);
@@ -98,8 +98,9 @@ const AllOrders = () => {
             case 'approved': return 'bg-green-100 text-green-800';
             case 'rejected': return 'bg-red-100 text-red-800';
             case 'processing': return 'bg-blue-100 text-blue-800';
+            case 'in_production': return 'bg-indigo-100 text-indigo-800';
             case 'shipped': return 'bg-purple-100 text-purple-800';
-            case 'delivered': return 'bg-green-100 text-green-800';
+            case 'completed': return 'bg-green-100 text-green-800';
             case 'cancelled': return 'bg-gray-100 text-gray-800';
             default: return 'bg-gray-100 text-gray-800';
         }
@@ -121,8 +122,8 @@ const AllOrders = () => {
             'Email': order.customerEmail,
             'Product': order.product?.name,
             'Quantity': order.quantity,
-            'Amount': order.totalAmount,
-            'Status': order.status,
+            'Amount': order.totalPrice,
+            'Status': order.orderStatus,
             'Payment': order.paymentMethod,
             'Date': format(new Date(order.createdAt), 'yyyy-MM-dd'),
         }));
@@ -193,8 +194,9 @@ const AllOrders = () => {
                                 <option value="pending">Pending</option>
                                 <option value="approved">Approved</option>
                                 <option value="processing">Processing</option>
+                                <option value="in_production">In Production</option>
                                 <option value="shipped">Shipped</option>
-                                <option value="delivered">Delivered</option>
+                                <option value="completed">Completed</option>
                                 <option value="cancelled">Cancelled</option>
                                 <option value="rejected">Rejected</option>
                             </select>
@@ -233,19 +235,19 @@ const AllOrders = () => {
                         <div className="bg-yellow-50 p-4 rounded-lg">
                             <p className="text-sm text-yellow-600">Pending</p>
                             <p className="text-2xl font-bold">
-                                {orders.filter(o => o.status === 'pending').length}
+                                {orders.filter(o => o.orderStatus === 'pending').length}
                             </p>
                         </div>
                         <div className="bg-green-50 p-4 rounded-lg">
                             <p className="text-sm text-green-600">Completed</p>
                             <p className="text-2xl font-bold">
-                                {orders.filter(o => ['delivered', 'shipped'].includes(o.status)).length}
+                                {orders.filter(o => ['completed', 'shipped'].includes(o.orderStatus)).length}
                             </p>
                         </div>
                         <div className="bg-purple-50 p-4 rounded-lg">
                             <p className="text-sm text-purple-600">Revenue</p>
                             <p className="text-2xl font-bold">
-                                ${orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0).toFixed(2)}
+                                ${orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0).toFixed(2)}
                             </p>
                         </div>
                     </div>
@@ -327,12 +329,12 @@ const AllOrders = () => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-bold text-gray-900">
-                                                ${order.totalAmount?.toFixed(2)}
+                                                ${order.totalPrice?.toFixed(2)}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                                                {order.status}
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.orderStatus)}`}>
+                                                {order.orderStatus}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -361,7 +363,7 @@ const AllOrders = () => {
                                                     <FaEye />
                                                 </button>
 
-                                                {order.status === 'pending' && (
+                                                {order.orderStatus === 'pending' && (
                                                     <>
                                                         <button
                                                             onClick={() => {
@@ -450,8 +452,8 @@ const AllOrders = () => {
                                     <p><span className="text-gray-600">Order ID:</span> #{selectedOrder.orderNumber}</p>
                                     <p><span className="text-gray-600">Date:</span> {format(new Date(selectedOrder.createdAt), 'PPpp')}</p>
                                     <p><span className="text-gray-600">Status:</span>
-                                        <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedOrder.status)}`}>
-                                            {selectedOrder.status}
+                                        <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedOrder.orderStatus)}`}>
+                                            {selectedOrder.orderStatus}
                                         </span>
                                     </p>
                                 </div>
@@ -484,7 +486,7 @@ const AllOrders = () => {
                                         <h5 className="font-medium">{selectedOrder.product?.name}</h5>
                                         <div className="flex justify-between mt-2">
                                             <span className="text-gray-600">Quantity: {selectedOrder.quantity}</span>
-                                            <span className="font-bold">${selectedOrder.totalAmount?.toFixed(2)}</span>
+                                            <span className="font-bold">${selectedOrder.totalPrice?.toFixed(2)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -507,18 +509,18 @@ const AllOrders = () => {
                         </p>
 
                         <div className="space-y-3">
-                            {['pending', 'approved', 'processing', 'shipped', 'delivered', 'cancelled', 'rejected'].map((status) => (
+                            {['pending', 'approved', 'processing', 'in_production', 'shipped', 'completed', 'cancelled', 'rejected'].map((status) => (
                                 <button
                                     key={status}
                                     onClick={() => updateOrderStatus(selectedOrder._id, status)}
-                                    className={`w-full text-left px-4 py-3 rounded-lg border ${selectedOrder.status === status
-                                            ? 'border-primary-500 bg-primary-50'
-                                            : 'border-gray-200 hover:bg-gray-50'
+                                    className={`w-full text-left px-4 py-3 rounded-lg border ${selectedOrder.orderStatus === status
+                                        ? 'border-primary-500 bg-primary-50'
+                                        : 'border-gray-200 hover:bg-gray-50'
                                         }`}
                                 >
                                     <div className="flex items-center justify-between">
-                                        <span className="capitalize">{status}</span>
-                                        {selectedOrder.status === status && (
+                                        <span className="capitalize">{status.replace('_', ' ')}</span>
+                                        {selectedOrder.orderStatus === status && (
                                             <FaCheck className="text-green-500" />
                                         )}
                                     </div>

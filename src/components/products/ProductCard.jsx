@@ -49,11 +49,11 @@ const ProductCard = ({ product }) => {
                         <div className="flex items-center mr-4">
                             <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                             <span className="text-sm text-gray-600">
-                                {product.quantity > 0 ? 'In Stock' : 'Out of Stock'}
+                                {product.availableQuantity > 0 ? 'In Stock' : 'Out of Stock'}
                             </span>
                         </div>
                         <span className="text-sm text-gray-500">
-                            Min: {product.minOrderQuantity}
+                            Min: {product.minimumOrderQuantity}
                         </span>
                     </div>
                     <div className="flex items-center">
@@ -61,8 +61,8 @@ const ProductCard = ({ product }) => {
                             <FaStar
                                 key={star}
                                 className={`w-4 h-4 ${star <= (product.rating || 4)
-                                        ? 'text-yellow-400'
-                                        : 'text-gray-300'
+                                    ? 'text-yellow-400'
+                                    : 'text-gray-300'
                                     }`}
                             />
                         ))}
@@ -76,9 +76,11 @@ const ProductCard = ({ product }) => {
                             <FaEye className="mr-2" /> Details
                         </Button>
                     </Link>
-                    <Button className="flex-1 flex items-center justify-center">
-                        <FaShoppingCart className="mr-2" /> Order
-                    </Button>
+                    <Link to={`/products/${product._id}`} className="flex-1">
+                        <Button className="w-full flex items-center justify-center">
+                            <FaShoppingCart className="mr-2" /> Order
+                        </Button>
+                    </Link>
                 </div>
             </div>
         </div>

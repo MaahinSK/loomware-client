@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../../services/api';
 import { toast } from 'react-toastify';
 import Button from '../../common/Button';
 import Spinner from '../../common/Spinner';
@@ -23,7 +23,7 @@ const ManageUsers = () => {
 
     const fetchUsers = async () => {
         try {
-            const response = await axios.get('/users');
+            const response = await api.get('/users');
             setUsers(response.data.data.users);
         } catch (error) {
             toast.error('Failed to fetch users');
@@ -51,7 +51,7 @@ const ManageUsers = () => {
 
     const updateUserRole = async (userId, role) => {
         try {
-            await axios.put(`/users/${userId}/role`, { role });
+            await api.put(`/users/${userId}`, { role });
             toast.success('User role updated');
             fetchUsers();
         } catch (error) {
@@ -61,7 +61,7 @@ const ManageUsers = () => {
 
     const updateUserStatus = async (userId, status, reason = '') => {
         try {
-            await axios.put(`/users/${userId}/status`, { status, suspendReason: reason });
+            await api.put(`/users/${userId}`, { status, suspendReason: reason });
             toast.success('User status updated');
             fetchUsers();
         } catch (error) {
@@ -165,10 +165,10 @@ const ManageUsers = () => {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.status === 'approved'
-                                                ? 'bg-green-100 text-green-800'
-                                                : user.status === 'pending'
-                                                    ? 'bg-yellow-100 text-yellow-800'
-                                                    : 'bg-red-100 text-red-800'
+                                            ? 'bg-green-100 text-green-800'
+                                            : user.status === 'pending'
+                                                ? 'bg-yellow-100 text-yellow-800'
+                                                : 'bg-red-100 text-red-800'
                                             }`}>
                                             {user.status}
                                         </span>

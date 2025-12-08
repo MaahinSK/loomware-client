@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import Button from '../common/Button';
@@ -36,7 +36,7 @@ const AllProducts = () => {
     const fetchProducts = async () => {
         try {
             setLoading(true);
-            const response = await axios.get('/api/products', {
+            const response = await api.get('/products', {
                 params: {
                     page: currentPage,
                     limit: productsPerPage,
@@ -188,8 +188,8 @@ const AllProducts = () => {
                                         key={cat}
                                         onClick={() => handleCategoryChange(cat)}
                                         className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${categoryFilter === cat
-                                                ? 'bg-primary-500 text-white'
-                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            ? 'bg-primary-500 text-white'
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                             }`}
                                     >
                                         {cat === 'all' ? 'All Categories' : cat}
@@ -292,7 +292,7 @@ const AllProducts = () => {
                                                             <div className={`w-2 h-2 rounded-full mr-2 ${product.quantity > 0 ? 'bg-green-500' : 'bg-red-500'
                                                                 }`}></div>
                                                             <span className="text-sm text-gray-600">
-                                                                {product.quantity > 0 ? 'In Stock' : 'Out of Stock'}
+                                                                {product.availableQuantity > 0 ? 'In Stock' : 'Out of Stock'}
                                                             </span>
                                                         </div>
                                                         <span className="text-sm text-gray-600">
@@ -356,8 +356,8 @@ const AllProducts = () => {
                                             key={page}
                                             onClick={() => handlePageChange(page)}
                                             className={`px-4 py-2 border rounded-lg min-w-[40px] ${currentPage === page
-                                                    ? 'bg-primary-500 text-white border-primary-500'
-                                                    : 'hover:bg-gray-50'
+                                                ? 'bg-primary-500 text-white border-primary-500'
+                                                : 'hover:bg-gray-50'
                                                 }`}
                                         >
                                             {page}

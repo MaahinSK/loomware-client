@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api';
 import { toast } from 'react-toastify';
 import { Helmet } from 'react-helmet-async';
 import Button from '../components/common/Button';
@@ -34,7 +34,7 @@ const ProductDetailsPage = () => {
 
     const fetchProductDetails = async () => {
         try {
-            const response = await axios.get(`/api/products/${id}`);
+            const response = await api.get(`/products/${id}`);
             setProduct(response.data.data.product);
             setQuantity(response.data.data.product.minOrderQuantity || 1);
         } catch (error) {
@@ -47,7 +47,7 @@ const ProductDetailsPage = () => {
 
     const fetchRelatedProducts = async () => {
         try {
-            const response = await axios.get(`/api/products/related/${id}`);
+            const response = await api.get(`/products/related/${id}`);
             setRelatedProducts(response.data.data.products || []);
         } catch (error) {
             console.error('Failed to fetch related products:', error);
@@ -300,8 +300,8 @@ const ProductDetailsPage = () => {
                                             <FaStar
                                                 key={star}
                                                 className={`w-5 h-5 ${star <= (product.rating || 4)
-                                                        ? 'text-yellow-400 fill-current'
-                                                        : 'text-gray-300'
+                                                    ? 'text-yellow-400 fill-current'
+                                                    : 'text-gray-300'
                                                     }`}
                                             />
                                         ))}
@@ -416,7 +416,7 @@ const ProductDetailsPage = () => {
                                         disabled={product.quantity === 0}
                                     >
                                         <FaShoppingCart className="mr-3" />
-                                        {product.quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
+                                        {product.availableQuantity === 0 ? 'Out of Stock' : 'Add to Cart'}
                                     </Button>
                                     <Button
                                         variant="secondary"
@@ -458,8 +458,8 @@ const ProductDetailsPage = () => {
                                     <button
                                         key={tab}
                                         className={`px-6 py-4 font-medium capitalize ${activeTab === tab
-                                                ? 'border-b-2 border-primary-500 text-primary-600'
-                                                : 'text-gray-600 hover:text-gray-900'
+                                            ? 'border-b-2 border-primary-500 text-primary-600'
+                                            : 'text-gray-600 hover:text-gray-900'
                                             }`}
                                         onClick={() => setActiveTab(tab)}
                                     >

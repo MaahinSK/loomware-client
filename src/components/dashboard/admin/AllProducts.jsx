@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../../services/api';
 import { toast } from 'react-toastify';
 import { Helmet } from 'react-helmet-async';
 import Button from '../../common/Button';
@@ -41,7 +41,7 @@ const AllProducts = () => {
 
     const fetchProducts = async () => {
         try {
-            const response = await axios.get('/api/products/admin');
+            const response = await api.get('/products/admin');
             setProducts(response.data.data.products);
         } catch (error) {
             toast.error('Failed to fetch products');
@@ -103,7 +103,7 @@ const AllProducts = () => {
 
     const deleteProduct = async () => {
         try {
-            await axios.delete(`/api/products/${selectedProduct._id}`);
+            await api.delete(`/products/${selectedProduct._id}`);
             toast.success('Product deleted successfully');
             fetchProducts();
             setShowDeleteModal(false);
@@ -115,7 +115,7 @@ const AllProducts = () => {
 
     const toggleFeatured = async (productId, featured) => {
         try {
-            await axios.put(`/api/products/${productId}/feature`, { featured: !featured });
+            await api.put(`/products/${productId}/feature`, { featured: !featured });
             toast.success(featured ? 'Product unfeatured' : 'Product featured');
             fetchProducts();
         } catch (error) {
@@ -125,7 +125,7 @@ const AllProducts = () => {
 
     const toggleShowOnHome = async (productId, showOnHome) => {
         try {
-            await axios.put(`/api/products/${productId}/visibility`, { showOnHome: !showOnHome });
+            await api.put(`/products/${productId}/visibility`, { showOnHome: !showOnHome });
             toast.success(showOnHome ? 'Removed from homepage' : 'Added to homepage');
             fetchProducts();
         } catch (error) {
@@ -135,7 +135,7 @@ const AllProducts = () => {
 
     const updateProduct = async (productData) => {
         try {
-            await axios.put(`/api/products/${selectedProduct._id}`, productData);
+            await api.put(`/products/${selectedProduct._id}`, productData);
             toast.success('Product updated successfully');
             fetchProducts();
             setShowEditModal(false);
@@ -324,10 +324,10 @@ const AllProducts = () => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className={`text-sm font-medium ${product.quantity === 0
-                                                    ? 'text-red-600'
-                                                    : product.quantity <= 10
-                                                        ? 'text-yellow-600'
-                                                        : 'text-green-600'
+                                                ? 'text-red-600'
+                                                : product.quantity <= 10
+                                                    ? 'text-yellow-600'
+                                                    : 'text-green-600'
                                                 }`}>
                                                 {product.quantity} units
                                             </div>
@@ -339,8 +339,8 @@ const AllProducts = () => {
                                             <button
                                                 onClick={() => toggleFeatured(product._id, product.featured)}
                                                 className={`p-2 rounded-full ${product.featured
-                                                        ? 'text-green-600 bg-green-50'
-                                                        : 'text-gray-400 bg-gray-50'
+                                                    ? 'text-green-600 bg-green-50'
+                                                    : 'text-gray-400 bg-gray-50'
                                                     }`}
                                             >
                                                 {product.featured ? <FaToggleOn size={24} /> : <FaToggleOff size={24} />}
@@ -350,8 +350,8 @@ const AllProducts = () => {
                                             <button
                                                 onClick={() => toggleShowOnHome(product._id, product.showOnHome)}
                                                 className={`p-2 rounded-full ${product.showOnHome
-                                                        ? 'text-blue-600 bg-blue-50'
-                                                        : 'text-gray-400 bg-gray-50'
+                                                    ? 'text-blue-600 bg-blue-50'
+                                                    : 'text-gray-400 bg-gray-50'
                                                     }`}
                                             >
                                                 {product.showOnHome ? <FaToggleOn size={24} /> : <FaToggleOff size={24} />}

@@ -14,8 +14,10 @@ import {
     FaCheckCircle,
     FaUserCircle,
     FaBell,
-    FaCog
+    FaCog,
+    FaSpinner
 } from 'react-icons/fa';
+import api from '../services/api';
 
 // Dashboard Components
 import ManageUsers from '../components/dashboard/admin/ManageUsers';
@@ -107,8 +109,8 @@ const DashboardLayout = ({ children }) => {
                                 <Link
                                     to="/dashboard"
                                     className={`flex items-center px-4 py-3 rounded-lg ${location.pathname === '/dashboard'
-                                            ? 'bg-primary-50 text-primary-600'
-                                            : 'text-gray-700 hover:bg-gray-100'
+                                        ? 'bg-primary-50 text-primary-600'
+                                        : 'text-gray-700 hover:bg-gray-100'
                                         }`}
                                 >
                                     <FaTachometerAlt className="mr-3" />
@@ -120,8 +122,8 @@ const DashboardLayout = ({ children }) => {
                                     <Link
                                         to={link.path}
                                         className={`flex items-center px-4 py-3 rounded-lg ${location.pathname === link.path
-                                                ? 'bg-primary-50 text-primary-600'
-                                                : 'text-gray-700 hover:bg-gray-100'
+                                            ? 'bg-primary-50 text-primary-600'
+                                            : 'text-gray-700 hover:bg-gray-100'
                                             }`}
                                     >
                                         <span className="mr-3">{link.icon}</span>
@@ -133,8 +135,8 @@ const DashboardLayout = ({ children }) => {
                                 <Link
                                     to="/dashboard/profile"
                                     className={`flex items-center px-4 py-3 rounded-lg ${location.pathname === '/dashboard/profile'
-                                            ? 'bg-primary-50 text-primary-600'
-                                            : 'text-gray-700 hover:bg-gray-100'
+                                        ? 'bg-primary-50 text-primary-600'
+                                        : 'text-gray-700 hover:bg-gray-100'
                                         }`}
                                 >
                                     <FaUserCircle className="mr-3" />
@@ -164,7 +166,37 @@ const DashboardLayout = ({ children }) => {
 };
 
 const Dashboard = () => {
+    // Safelist dynamic classes so Tailwind includes them
+    const safelist = [
+        'bg-orange-500',
+        'bg-blue-500',
+        'bg-green-500',
+        'bg-green-600',
+        'bg-gradient-primary',
+        'bg-gradient-secondary',
+        'bg-gradient-dark'
+    ];
+
     const { user, loading } = useAuth();
+    const [stats, setStats] = React.useState([]);
+    const [statsLoading, setStatsLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        if (user) {
+            fetchStats();
+        }
+    }, [user]);
+
+    const fetchStats = async () => {
+        try {
+            const response = await api.get('/dashboard/stats');
+            setStats(response.data.data.stats);
+        } catch (error) {
+            console.error('Failed to fetch dashboard stats', error);
+        } finally {
+            setStatsLoading(false);
+        }
+    };
 
     if (loading) {
         return <Spinner fullScreen />;
@@ -272,20 +304,27 @@ const Dashboard = () => {
                     element={
                         <div>
                             <h2 className="text-2xl font-bold mb-6">Welcome back, {user?.name}!</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="bg-gradient-primary text-white p-6 rounded-xl">
-                                    <h3 className="text-xl font-bold mb-2">Total Orders</h3>
-                                    <p className="text-3xl font-bold">1,234</p>
+
+                            {statsLoading ? (
+                                <div className="flex justify-center py-12">
+                                    <FaSpinner className="animate-spin text-4xl text-primary-500" />
                                 </div>
-                                <div className="bg-gradient-secondary text-white p-6 rounded-xl">
-                                    <h3 className="text-xl font-bold mb-2">Pending</h3>
-                                    <p className="text-3xl font-bold">45</p>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {stats.length > 0 ? (
+                                        stats.map((stat, index) => (
+                                            <div key={index} className={`${stat.color} text-white p-6 rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-200`}>
+                                                <h3 className="text-xl font-bold mb-2 opacity-90">{stat.label}</h3>
+                                                <p className="text-3xl font-extrabold">{stat.value}</p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="col-span-full text-center py-12 bg-white rounded-xl shadow-sm">
+                                            <p className="text-gray-500 text-lg">No stats available for your role ({user?.role})</p>
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="bg-gradient-dark text-white p-6 rounded-xl">
-                                    <h3 className="text-xl font-bold mb-2">Revenue</h3>
-                                    <p className="text-3xl font-bold">$12,345</p>
-                                </div>
-                            </div>
+                            )}
                         </div>
                     }
                 />

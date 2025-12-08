@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../../services/api';
 import { toast } from 'react-toastify';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import Spinner from '../../common/Spinner';
@@ -12,24 +12,43 @@ const TrackOrder = () => {
     const { orderId } = useParams();
     const navigate = useNavigate();
     const [order, setOrder] = useState(null);
+    const [myOrders, setMyOrders] = useState([]);
     const [tracking, setTracking] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (orderId) {
             fetchOrderDetails();
+        } else {
+            fetchMyOrders();
         }
     }, [orderId]);
 
+    const fetchMyOrders = async () => {
+        try {
+            setLoading(true);
+            const response = await api.get('/orders/my-orders');
+            setMyOrders(response.data.data.orders);
+        } catch (error) {
+            toast.error('Failed to fetch orders');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const fetchOrderDetails = async () => {
         try {
-            const [orderRes, trackingRes] = await Promise.all([
-                axios.get(`/orders/${orderId}`),
-                axios.get(`/tracking/order/${orderId}`)
-            ]);
-
+            const orderRes = await api.get(`/orders/${orderId}`);
             setOrder(orderRes.data.data.order);
-            setTracking(trackingRes.data.data.tracking);
+
+            // Try to fetch tracking, but don't fail if it's not available
+            try {
+                const trackingRes = await api.get(`/tracking/order/${orderId}`);
+                setTracking(trackingRes.data.data.tracking || []);
+            } catch (trackingError) {
+                console.log('No tracking data available yet');
+                setTracking([]);
+            }
         } catch (error) {
             toast.error('Failed to fetch order details');
             navigate('/dashboard/my-orders');
@@ -39,19 +58,17 @@ const TrackOrder = () => {
     };
 
     const timelineSteps = [
-        { status: 'order_placed', label: 'Order Placed', icon: <FaCheckCircle /> },
+        { status: 'pending', label: 'Order Placed', icon: <FaCheckCircle /> },
+        { status: 'approved', label: 'Approved', icon: <FaCheckCircle /> },
         { status: 'processing', label: 'Processing', icon: <FaClock /> },
-        { status: 'cutting', label: 'Cutting', icon: <FaBoxOpen /> },
-        { status: 'sewing', label: 'Sewing', icon: <FaBoxOpen /> },
-        { status: 'finishing', label: 'Finishing', icon: <FaBoxOpen /> },
-        { status: 'quality_check', label: 'Quality Check', icon: <FaCheckCircle /> },
-        { status: 'packed', label: 'Packed', icon: <FaBoxOpen /> },
+        { status: 'in_production', label: 'In Production', icon: <FaBoxOpen /> },
         { status: 'shipped', label: 'Shipped', icon: <FaShippingFast /> },
-        { status: 'out_for_delivery', label: 'Out for Delivery', icon: <FaTruck /> },
-        { status: 'delivered', label: 'Delivered', icon: <FaCheckCircle /> },
+        { status: 'completed', label: 'Delivered', icon: <FaCheckCircle /> },
     ];
 
     const getStepIndex = (status) => {
+        // Map cancelled or rejected to 0 or hidden
+        if (status === 'cancelled' || status === 'rejected') return -1;
         return timelineSteps.findIndex(step => step.status === status);
     };
 
@@ -60,7 +77,71 @@ const TrackOrder = () => {
     }
 
     if (!order) {
-        return null;
+        return (
+            <div className="space-y-6">
+                <Helmet>
+                    <title>Track Order - LoomWare</title>
+                </Helmet>
+
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Select an Order to Track</h2>
+                    <p className="text-gray-600 mb-6">Choose an order from the list below to view its tracking details.</p>
+
+                    {myOrders.length === 0 ? (
+                        <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-xl">
+                            <FaBoxOpen className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
+                            <button
+                                onClick={() => navigate('/products')}
+                                className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                            >
+                                Browse Products
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {myOrders.map((myOrder) => (
+                                <div
+                                    key={myOrder._id}
+                                    onClick={() => navigate(`/dashboard/track-order/${myOrder._id}`)}
+                                    className="border rounded-xl p-4 cursor-pointer hover:border-primary-500 hover:shadow-md transition-all group"
+                                >
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className="flex items-center">
+                                            <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center mr-3 overflow-hidden">
+                                                <img
+                                                    src={myOrder.product?.images?.[0] || 'https://via.placeholder.com/48'}
+                                                    alt={myOrder.product?.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-medium text-gray-900 line-clamp-1">{myOrder.product?.name}</h4>
+                                                <p className="text-xs text-gray-500">#{myOrder._id.slice(-8).toUpperCase()}</p>
+                                            </div>
+                                        </div>
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${myOrder.orderStatus === 'completed' ? 'bg-green-100 text-green-800' :
+                                                myOrder.orderStatus === 'shipped' ? 'bg-blue-100 text-blue-800' :
+                                                    'bg-yellow-100 text-yellow-800'
+                                            }`}>
+                                            {myOrder.orderStatus.replace('_', ' ')}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-gray-600">
+                                            {format(new Date(myOrder.createdAt), 'MMM dd, yyyy')}
+                                        </span>
+                                        <span className="text-primary-600 font-medium group-hover:underline">
+                                            Track Order →
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -78,17 +159,17 @@ const TrackOrder = () => {
                                 Tracking Order #{order._id.slice(-8).toUpperCase()}
                             </h2>
                             <p className="text-gray-600">
-                                Estimated Delivery: {format(new Date(order.estimatedDelivery), 'MMMM dd, yyyy')}
+                                Estimated Delivery: {order.estimatedDelivery ? format(new Date(order.estimatedDelivery), 'MMMM dd, yyyy') : 'Calculating...'}
                             </p>
                         </div>
                         <div className="mt-4 md:mt-0">
-                            <span className={`px-4 py-2 rounded-full text-sm font-medium ${order.status === 'delivered'
-                                    ? 'bg-green-100 text-green-800'
-                                    : order.status === 'shipped'
-                                        ? 'bg-blue-100 text-blue-800'
-                                        : 'bg-yellow-100 text-yellow-800'
+                            <span className={`px-4 py-2 rounded-full text-sm font-medium ${order.orderStatus === 'completed'
+                                ? 'bg-green-100 text-green-800'
+                                : order.orderStatus === 'shipped'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : 'bg-yellow-100 text-yellow-800'
                                 }`}>
-                                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                {order.orderStatus.charAt(0).toUpperCase() + order.orderStatus.slice(1).replace('_', ' ')}
                             </span>
                         </div>
                     </div>
@@ -105,25 +186,21 @@ const TrackOrder = () => {
                                 <div>
                                     <p className="font-medium">{order.product?.name}</p>
                                     <p className="text-sm text-gray-600">Quantity: {order.quantity}</p>
-                                    <p className="text-sm text-gray-600">Price: ${order.totalAmount?.toFixed(2)}</p>
+                                    <p className="text-sm text-gray-600">Price: ${order.totalPrice?.toFixed(2)}</p>
                                 </div>
                             </div>
                         </div>
 
                         <div className="border rounded-lg p-4">
                             <h3 className="font-medium text-gray-700 mb-2">Delivery Address</h3>
-                            <p className="text-gray-800">{order.shippingAddress?.street}</p>
-                            <p className="text-gray-600">
-                                {order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.zipCode}
-                            </p>
-                            <p className="text-gray-600">{order.shippingAddress?.country}</p>
+                            <p className="text-gray-800">{order.deliveryAddress}</p>
                         </div>
 
                         <div className="border rounded-lg p-4">
                             <h3 className="font-medium text-gray-700 mb-2">Contact Information</h3>
-                            <p className="text-gray-800">{order.customerName}</p>
-                            <p className="text-gray-600">{order.customerEmail}</p>
-                            <p className="text-gray-600">{order.customerPhone}</p>
+                            <p className="text-gray-800">{order.firstName} {order.lastName}</p>
+                            <p className="text-gray-600">{order.email}</p>
+                            <p className="text-gray-600">{order.contactNumber}</p>
                         </div>
                     </div>
                 </div>
@@ -139,8 +216,8 @@ const TrackOrder = () => {
                         <div className="space-y-8">
                             {timelineSteps.map((step, index) => {
                                 const trackingUpdate = tracking.find(t => t.status === step.status);
-                                const isCompleted = getStepIndex(order.status) >= index;
-                                const isCurrent = order.status === step.status;
+                                const isCompleted = getStepIndex(order.orderStatus) >= index;
+                                const isCurrent = order.orderStatus === step.status;
 
                                 return (
                                     <div
@@ -150,10 +227,10 @@ const TrackOrder = () => {
                                     >
                                         {/* Timeline node */}
                                         <div className={`absolute left-0 md:left-1/2 transform -translate-x-1/2 md:-translate-x-1/2 w-8 h-8 rounded-full z-10 flex items-center justify-center ${isCompleted
-                                                ? 'bg-green-500 text-white'
-                                                : isCurrent
-                                                    ? 'bg-blue-500 text-white animate-pulse'
-                                                    : 'bg-gray-300 text-gray-600'
+                                            ? 'bg-green-500 text-white'
+                                            : isCurrent
+                                                ? 'bg-blue-500 text-white animate-pulse'
+                                                : 'bg-gray-300 text-gray-600'
                                             }`}>
                                             {isCompleted ? <FaCheckCircle /> : step.icon}
                                         </div>

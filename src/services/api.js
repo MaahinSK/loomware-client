@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-// Hardcoding API URL to ensure we hit production, ignoring potentially stale local .env
-const API_URL = 'https://loomware-serverv2.vercel.app/api';
+const API_URL = process.env.NODE_ENV === 'production'
+    ? 'https://loomware-serverv2.vercel.app/api'
+    : 'http://localhost:5000/api';
 
 const api = axios.create({
     baseURL: API_URL,
@@ -32,7 +33,10 @@ api.interceptors.response.use(
         if (error.response?.status === 401) {
             // Handle unauthorized access
             localStorage.removeItem('token');
-            window.location.href = '/login';
+            // Don't redirect if checking auth status fails (user just isn't logged in)
+            if (!error.config.url.includes('/auth/me')) {
+                window.location.href = '/login';
+            }
         }
         return Promise.reject(error);
     }

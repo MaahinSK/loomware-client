@@ -17,7 +17,7 @@ const schema = yup.object({
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const { login, googleLogin } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -41,9 +41,14 @@ const Login = () => {
         }
     };
 
-    const handleGoogleLogin = () => {
-        // Firebase Google login implementation
-        console.log('Google login');
+    const handleGoogleLogin = async () => {
+        setLoading(true);
+        const result = await googleLogin();
+        setLoading(false);
+
+        if (result.success) {
+            navigate(from, { replace: true });
+        }
     };
 
     return (

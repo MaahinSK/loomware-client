@@ -22,14 +22,14 @@ const CustomerFeedback = () => {
         {
             name: 'Emma Williams',
             role: 'Quality Control Head',
-            feedback: 'The quality tracking features ensure every product meets our high standards. Highly recommended!',
+            feedback: 'The quality tracking features ensure every product meets our high standards. Highly recommended! keep up the good work.',
             rating: 4,
             image: 'https://randomuser.me/api/portraits/women/44.jpg',
         },
         {
             name: 'David Brown',
             role: 'Supply Chain Director',
-            feedback: 'Integration with our existing systems was seamless. The dashboard provides perfect visibility.',
+            feedback: 'Integration with our existing systems was seamless. The dashboard provides perfect visibility. i would recommend this to every garment manufacturer.',
             rating: 5,
             image: 'https://randomuser.me/api/portraits/men/22.jpg',
         },
@@ -78,8 +78,8 @@ const CustomerFeedback = () => {
                                                 <FaStar
                                                     key={i}
                                                     className={`${i < testimonial.rating
-                                                            ? 'text-yellow-400'
-                                                            : 'text-gray-300'
+                                                        ? 'text-yellow-400'
+                                                        : 'text-gray-300'
                                                         }`}
                                                 />
                                             ))}

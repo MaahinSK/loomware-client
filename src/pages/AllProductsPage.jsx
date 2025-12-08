@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import Button from '../components/common/Button';
@@ -24,7 +24,7 @@ const AllProductsPage = () => {
     const fetchProducts = async () => {
         try {
             setLoading(true);
-            const response = await axios.get('/products', {
+            const response = await api.get('/products', {
                 params: {
                     page: currentPage,
                     limit: productsPerPage,
@@ -157,8 +157,8 @@ const AllProductsPage = () => {
                                     key={cat}
                                     onClick={() => handleCategoryChange(cat)}
                                     className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${categoryFilter === cat
-                                            ? 'bg-primary-500 text-white'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                        ? 'bg-primary-500 text-white'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                         }`}
                                 >
                                     {cat}
@@ -205,8 +205,8 @@ const AllProductsPage = () => {
                                         key={page}
                                         onClick={() => handlePageChange(page)}
                                         className={`px-4 py-2 border rounded-lg ${currentPage === page
-                                                ? 'bg-primary-500 text-white border-primary-500'
-                                                : 'hover:bg-gray-50'
+                                            ? 'bg-primary-500 text-white border-primary-500'
+                                            : 'hover:bg-gray-50'
                                             }`}
                                     >
                                         {page}

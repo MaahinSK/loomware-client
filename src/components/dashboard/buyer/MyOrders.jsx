@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import api from '../../../services/api';
 import { toast } from 'react-toastify';
 import Button from '../../common/Button';
 import Spinner from '../../common/Spinner';
@@ -8,6 +9,7 @@ import { FaEye, FaTimes, FaPrint, FaDownload } from 'react-icons/fa';
 import { format } from 'date-fns';
 
 const MyOrders = () => {
+    const navigate = useNavigate();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all');
@@ -18,7 +20,7 @@ const MyOrders = () => {
 
     const fetchOrders = async () => {
         try {
-            const response = await axios.get('/orders/my-orders');
+            const response = await api.get('/orders/my-orders');
             setOrders(response.data.data.orders);
         } catch (error) {
             toast.error('Failed to fetch orders');
@@ -33,7 +35,7 @@ const MyOrders = () => {
         }
 
         try {
-            await axios.put(`/orders/${orderId}/cancel`);
+            await api.put(`/orders/${orderId}/cancel`);
             toast.success('Order cancelled successfully');
             fetchOrders();
         } catch (error) {
@@ -43,16 +45,17 @@ const MyOrders = () => {
 
     const filteredOrders = orders.filter(order => {
         if (filter === 'all') return true;
-        return order.status === filter;
+        return order.orderStatus === filter;
     });
 
     const statusColors = {
         pending: 'bg-yellow-100 text-yellow-800',
         approved: 'bg-green-100 text-green-800',
         rejected: 'bg-red-100 text-red-800',
+        in_production: 'bg-indigo-100 text-indigo-800',
         processing: 'bg-blue-100 text-blue-800',
         shipped: 'bg-purple-100 text-purple-800',
-        delivered: 'bg-green-100 text-green-800',
+        completed: 'bg-green-100 text-green-800',
         cancelled: 'bg-gray-100 text-gray-800',
     };
 
@@ -82,8 +85,9 @@ const MyOrders = () => {
                             <option value="pending">Pending</option>
                             <option value="approved">Approved</option>
                             <option value="processing">Processing</option>
+                            <option value="in_production">In Production</option>
                             <option value="shipped">Shipped</option>
-                            <option value="delivered">Delivered</option>
+                            <option value="completed">Completed</option>
                             <option value="cancelled">Cancelled</option>
                         </select>
                     </div>
@@ -148,12 +152,12 @@ const MyOrders = () => {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="text-sm font-bold text-gray-900">
-                                            ${order.totalAmount?.toFixed(2)}
+                                            ${order.totalPrice?.toFixed(2)}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
-                                            {order.status}
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[order.orderStatus] || 'bg-gray-100 text-gray-800'}`}>
+                                            {order.orderStatus}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
@@ -164,13 +168,14 @@ const MyOrders = () => {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div className="flex space-x-2">
                                             <button
+                                                onClick={() => navigate(`/dashboard/track-order/${order._id}`)}
                                                 className="text-primary-600 hover:text-primary-900"
                                                 title="View Details"
                                             >
                                                 <FaEye />
                                             </button>
 
-                                            {order.status === 'pending' && (
+                                            {order.orderStatus === 'pending' && (
                                                 <button
                                                     onClick={() => cancelOrder(order._id)}
                                                     className="text-red-600 hover:text-red-900"

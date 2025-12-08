@@ -11,6 +11,8 @@ import AboutUs from './pages/AboutUs';
 import Contact from './pages/Contact';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
+import CheckoutPage from './pages/CheckoutPage';
+import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PrivateRoute from './components/common/PrivateRoute';
 
 function App() {
@@ -34,9 +36,11 @@ function App() {
                     <Route path="contact" element={<Contact />} />
                     <Route path="login" element={<Login />} />
                     <Route path="register" element={<Register />} />
+                    <Route path="checkout" element={<PrivateRoute><CheckoutPage /></PrivateRoute>} />
+                    <Route path="payment-success" element={<PrivateRoute><PaymentSuccessPage /></PrivateRoute>} />
 
                     {/* Private Routes */}
-                    <Route path="dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+                    <Route path="dashboard/*" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
 
                     {/* 404 Route */}
                     <Route path="*" element={<NotFound />} />

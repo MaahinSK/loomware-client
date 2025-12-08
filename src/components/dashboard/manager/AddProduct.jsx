@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import axios from 'axios';
+import api from '../../../services/api';
 import { toast } from 'react-toastify';
 import Button from '../../common/Button';
 import Spinner from '../../common/Spinner';
@@ -33,16 +33,15 @@ const AddProduct = () => {
     } = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
-            paymentOptions: ['cash'],
+            paymentOptions: ['Cash on Delivery'],
             showOnHome: false,
         },
     });
 
     const categories = ['Shirt', 'Pant', 'Jacket', 'Suits', 'Accessories', 'Dress', 'Skirt', 'T-Shirt'];
     const paymentOptions = [
-        { value: 'cash', label: 'Cash on Delivery' },
-        { value: 'stripe', label: 'Stripe' },
-        { value: 'bank', label: 'Bank Transfer' },
+        { value: 'Cash on Delivery', label: 'Cash on Delivery' },
+        { value: 'Stripe', label: 'Stripe' },
     ];
 
     const handleImageUpload = (e) => {
@@ -84,13 +83,21 @@ const AddProduct = () => {
         try {
             const formData = new FormData();
 
-            // Append product data
-            Object.keys(data).forEach(key => {
-                if (key === 'paymentOptions') {
-                    formData.append(key, JSON.stringify(data[key]));
-                } else {
-                    formData.append(key, data[key]);
-                }
+            // Map frontend field names to backend expected names
+            const fieldMapping = {
+                name: data.name,
+                description: data.description,
+                category: data.category,
+                price: data.price,
+                availableQuantity: data.quantity,
+                minimumOrderQuantity: data.minOrderQuantity,
+                paymentOptions: JSON.stringify(data.paymentOptions),
+                showOnHome: data.showOnHome
+            };
+
+            // Append product data with correct field names
+            Object.keys(fieldMapping).forEach(key => {
+                formData.append(key, fieldMapping[key]);
             });
 
             // Append images
@@ -98,7 +105,7 @@ const AddProduct = () => {
                 formData.append('images', image);
             });
 
-            await axios.post('/products', formData, {
+            await api.post('/products', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

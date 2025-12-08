@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api';
 import { toast } from 'react-toastify';
 import { Helmet } from 'react-helmet-async';
 import Button from '../components/common/Button';
@@ -29,7 +29,7 @@ const ProductDetailsPage = () => {
 
     const fetchProductDetails = async () => {
         try {
-            const response = await axios.get(`/products/${id}`);
+            const response = await api.get(`/products/${id}`);
             setProduct(response.data.data.product);
             setQuantity(response.data.data.product.minOrderQuantity || 1);
         } catch (error) {
@@ -196,8 +196,8 @@ const ProductDetailsPage = () => {
                                             <FaStar
                                                 key={star}
                                                 className={`w-5 h-5 ${star <= (product.rating || 4)
-                                                        ? 'text-yellow-400'
-                                                        : 'text-gray-300'
+                                                    ? 'text-yellow-400'
+                                                    : 'text-gray-300'
                                                     }`}
                                             />
                                         ))}

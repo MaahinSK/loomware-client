@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "private": true,
     "dependencies": {
+        "@dotlottie/react-player": "^1.6.19",
         "@hookform/resolvers": "^3.10.0",
         "@stripe/react-stripe-js": "^2.9.0",
         "@stripe/stripe-js": "^2.4.0",
