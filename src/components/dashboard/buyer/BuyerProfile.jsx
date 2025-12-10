@@ -36,6 +36,15 @@ const BuyerProfile = () => {
     const [activeTab, setActiveTab] = useState('profile');
     const [loading, setLoading] = useState(false);
 
+    // DEBUG: Log user data
+    console.log('=== BUYER PROFILE DEBUG ===');
+    console.log('User object:', user);
+    console.log('User status:', user?.status);
+    console.log('Suspend reason:', user?.suspendReason);
+    console.log('Suspend reason type:', typeof user?.suspendReason);
+    console.log('Suspend reason length:', user?.suspendReason?.length);
+    console.log('===========================');
+
     const {
         register,
         handleSubmit,
@@ -417,13 +426,13 @@ const BuyerProfile = () => {
                                     </h4>
                                     <p className={`${user?.status === 'suspended' ? 'text-red-700' : 'text-yellow-700'} text-sm`}>
                                         {user?.status === 'suspended'
-                                            ? 'Your account has been suspended. Please address the issues below.'
+                                            ? 'Your account has been suspended. Please contact support for assistance.'
                                             : 'Your account is currently under review. You can browse products but cannot place orders until approved.'}
                                     </p>
-                                    {user?.status === 'suspended' && user?.suspendReason && (
+                                    {user?.status === 'suspended' && user?.suspendReason && user.suspendReason.trim() && (
                                         <div className="mt-3 bg-white bg-opacity-50 rounded p-3">
                                             <p className="font-semibold text-red-900 text-sm">Reason:</p>
-                                            <p className="text-red-800 text-sm">{user.suspendReason}</p>
+                                            <p className="text-red-800 text-sm">{user.suspendReason.trim()}</p>
                                         </div>
                                     )}
                                 </Card.Body>
