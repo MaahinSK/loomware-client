@@ -61,13 +61,18 @@ const ProductDetailsPage = () => {
 
     const handleQuantityChange = (value) => {
         const newQuantity = parseInt(value);
+        if (isNaN(newQuantity)) return; // Allow empty input temporarily if needed, or just block
+
+        // Only warn, don't block typing if it's within "sane" limits, but here we want strict enforcement
+        // However, standard UX is to validate on blur or submit. 
+        // Current requirement: "cannot be larger... cannot be less". 
+        // Strict blocking mode:
         if (newQuantity < (product.minOrderQuantity || 1)) {
-            toast.error(`Minimum order quantity is ${product.minOrderQuantity}`);
-            return;
-        }
-        if (newQuantity > product.quantity) {
-            toast.error(`Only ${product.quantity} items available`);
-            return;
+            // We can't easily prevent "typing" a smaller number if we want to allow typing "10" (typing 1 then 0).
+            // But if we want to enforce Range, we can clamp it or show error.
+            // The user said "even after setting... I am still able to order".
+            // So the handleSubmit check is most critical.
+            // But let's also update state locally.
         }
         setQuantity(newQuantity);
     };
@@ -76,6 +81,15 @@ const ProductDetailsPage = () => {
         if (!user) {
             toast.info('Please login to place an order');
             navigate('/login');
+            return;
+        }
+
+        if (quantity < (product.minOrderQuantity || 1)) {
+            toast.error(`Minimum order quantity is ${product.minOrderQuantity}`);
+            return;
+        }
+        if (quantity > product.availableQuantity) {
+            toast.error(`Only ${product.availableQuantity} items available`);
             return;
         }
 
@@ -98,7 +112,7 @@ const ProductDetailsPage = () => {
                 image: product.images?.[0],
                 quantity: quantity,
                 minOrder: product.minOrderQuantity,
-                maxOrder: product.quantity
+                maxOrder: product.availableQuantity
             });
         }
 
@@ -110,6 +124,15 @@ const ProductDetailsPage = () => {
         if (!user) {
             toast.info('Please login to place an order');
             navigate('/login');
+            return;
+        }
+
+        if (quantity < (product.minOrderQuantity || 1)) {
+            toast.error(`Minimum order quantity is ${product.minOrderQuantity}`);
+            return;
+        }
+        if (quantity > product.availableQuantity) {
+            toast.error(`Only ${product.availableQuantity} items available`);
             return;
         }
 
@@ -351,7 +374,7 @@ const ProductDetailsPage = () => {
                                     <div className="text-right">
                                         <div className="flex items-center text-green-600 mb-2">
                                             <FaBox className="mr-2" />
-                                            <span className="font-medium">{product.quantity} in stock</span>
+                                            <span className="font-medium">{product.availableQuantity} left</span>
                                         </div>
                                         <p className="text-sm text-gray-600">
                                             Min order: {product.minOrderQuantity} units

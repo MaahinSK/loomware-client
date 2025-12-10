@@ -16,7 +16,7 @@ const OurProducts = () => {
     const fetchProducts = async () => {
         try {
             // Using the axios instance from services/api ensures baseURL is used
-            const response = await axios.get('/products?limit=3&featured=true');
+            const response = await axios.get('/products?limit=6&featured=true');
             // Check if response data structure matches expected format
             // API might return { data: { products: [...] } } or just { products: [...] } or array
             // Adjusting based on common patterns, assuming response.data.data.products from previous code
@@ -91,7 +91,7 @@ const OurProducts = () => {
                                     <p className="text-gray-500 mb-4 line-clamp-2 text-sm">{product.description}</p>
                                     <div className="border-t border-gray-100 pt-4 flex justify-between items-center">
                                         <span className={`text-sm font-medium ${product.availableQuantity > 0 ? 'text-green-600' : 'text-red-500'}`}>
-                                            {product.availableQuantity > 0 ? 'In Stock' : 'Out of Stock'}
+                                            {product.availableQuantity > 0 ? `${product.availableQuantity} left` : 'Out of Stock'}
                                         </span>
                                         <button className="text-gray-400 hover:text-primary-600 transition-colors">
                                             <FaShoppingCart size={20} />

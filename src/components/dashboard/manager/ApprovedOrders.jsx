@@ -19,8 +19,13 @@ const ApprovedOrders = () => {
 
     const orderStatuses = [
         { value: 'approved', label: 'Approved' },
-        { value: 'processing', label: 'Processing' },
+        { value: 'cutting_completed', label: 'Cutting Completed' },
+        { value: 'sewing_started', label: 'Sewing Started' },
+        { value: 'finishing', label: 'Finishing' },
+        { value: 'qc_checked', label: 'QC Checked' },
+        { value: 'packed', label: 'Packed' },
         { value: 'shipped', label: 'Shipped' },
+        { value: 'out_for_delivery', label: 'Out for Delivery' },
         { value: 'completed', label: 'Completed' },
     ];
 
@@ -73,8 +78,13 @@ const ApprovedOrders = () => {
     const getStatusColor = (status) => {
         switch (status) {
             case 'approved': return 'bg-green-100 text-green-800';
-            case 'processing': return 'bg-blue-100 text-blue-800';
-            case 'shipped': return 'bg-purple-100 text-purple-800';
+            case 'cutting_completed': return 'bg-indigo-100 text-indigo-800';
+            case 'sewing_started': return 'bg-indigo-100 text-indigo-800';
+            case 'finishing': return 'bg-blue-100 text-blue-800';
+            case 'qc_checked': return 'bg-purple-100 text-purple-800';
+            case 'packed': return 'bg-yellow-100 text-yellow-800';
+            case 'shipped': return 'bg-orange-100 text-orange-800';
+            case 'out_for_delivery': return 'bg-orange-100 text-orange-800';
             case 'completed': return 'bg-green-100 text-green-800';
             default: return 'bg-gray-100 text-gray-800';
         }
@@ -361,8 +371,8 @@ const ApprovedOrders = () => {
                                     key={status.value}
                                     onClick={() => updateOrderStatus(status.value)}
                                     className={`w-full text-left px-4 py-3 rounded-lg border ${selectedOrder.orderStatus === status.value
-                                            ? 'border-primary-500 bg-primary-50'
-                                            : 'border-gray-200 hover:bg-gray-50'
+                                        ? 'border-primary-500 bg-primary-50'
+                                        : 'border-gray-200 hover:bg-gray-50'
                                         }`}
                                 >
                                     <div className="flex items-center justify-between">

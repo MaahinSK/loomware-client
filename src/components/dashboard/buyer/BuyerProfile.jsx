@@ -118,8 +118,8 @@ const BuyerProfile = () => {
                                 <button
                                     key={tab.id}
                                     className={`flex items-center py-3 px-1 border-b-2 font-medium ${activeTab === tab.id
-                                            ? 'border-primary-500 text-primary-600'
-                                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                        ? 'border-primary-500 text-primary-600'
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                         }`}
                                     onClick={() => setActiveTab(tab.id)}
                                 >
@@ -195,10 +195,10 @@ const BuyerProfile = () => {
                                                     Account Status
                                                 </label>
                                                 <div className={`px-3 py-2 rounded-lg inline-flex items-center ${user?.status === 'approved'
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : user?.status === 'pending'
-                                                            ? 'bg-yellow-100 text-yellow-800'
-                                                            : 'bg-red-100 text-red-800'
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : user?.status === 'pending'
+                                                        ? 'bg-yellow-100 text-yellow-800'
+                                                        : 'bg-red-100 text-red-800'
                                                     }`}>
                                                     <FaShieldAlt className="mr-2" />
                                                     <span className="capitalize">{user?.status}</span>
@@ -410,12 +410,22 @@ const BuyerProfile = () => {
 
                         {/* Account Status */}
                         {user?.status !== 'approved' && (
-                            <Card variant="warning">
+                            <Card variant={user?.status === 'suspended' ? 'danger' : 'warning'}>
                                 <Card.Body>
-                                    <h4 className="font-bold text-yellow-800 mb-2">Account Pending Approval</h4>
-                                    <p className="text-yellow-700 text-sm">
-                                        Your account is currently under review. You can browse products but cannot place orders until approved.
+                                    <h4 className={`font-bold ${user?.status === 'suspended' ? 'text-red-800' : 'text-yellow-800'} mb-2`}>
+                                        {user?.status === 'suspended' ? 'Account Suspended' : 'Account Pending Approval'}
+                                    </h4>
+                                    <p className={`${user?.status === 'suspended' ? 'text-red-700' : 'text-yellow-700'} text-sm`}>
+                                        {user?.status === 'suspended'
+                                            ? 'Your account has been suspended. Please address the issues below.'
+                                            : 'Your account is currently under review. You can browse products but cannot place orders until approved.'}
                                     </p>
+                                    {user?.status === 'suspended' && user?.suspendReason && (
+                                        <div className="mt-3 bg-white bg-opacity-50 rounded p-3">
+                                            <p className="font-semibold text-red-900 text-sm">Reason:</p>
+                                            <p className="text-red-800 text-sm">{user.suspendReason}</p>
+                                        </div>
+                                    )}
                                 </Card.Body>
                             </Card>
                         )}

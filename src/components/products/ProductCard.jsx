@@ -49,7 +49,7 @@ const ProductCard = ({ product }) => {
                         <div className="flex items-center mr-4">
                             <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                             <span className="text-sm text-gray-600">
-                                {product.availableQuantity > 0 ? 'In Stock' : 'Out of Stock'}
+                                {product.availableQuantity > 0 ? `${product.availableQuantity} left` : 'Out of Stock'}
                             </span>
                         </div>
                         <span className="text-sm text-gray-500">

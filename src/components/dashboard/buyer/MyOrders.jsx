@@ -54,7 +54,13 @@ const MyOrders = () => {
         rejected: 'bg-red-100 text-red-800',
         in_production: 'bg-indigo-100 text-indigo-800',
         processing: 'bg-blue-100 text-blue-800',
-        shipped: 'bg-purple-100 text-purple-800',
+        cutting_completed: 'bg-indigo-100 text-indigo-800',
+        sewing_started: 'bg-indigo-100 text-indigo-800',
+        finishing: 'bg-blue-100 text-blue-800',
+        qc_checked: 'bg-purple-100 text-purple-800',
+        packed: 'bg-yellow-100 text-yellow-800',
+        shipped: 'bg-orange-100 text-orange-800',
+        out_for_delivery: 'bg-orange-100 text-orange-800',
         completed: 'bg-green-100 text-green-800',
         cancelled: 'bg-gray-100 text-gray-800',
     };
@@ -84,9 +90,14 @@ const MyOrders = () => {
                             <option value="all">All Orders</option>
                             <option value="pending">Pending</option>
                             <option value="approved">Approved</option>
-                            <option value="processing">Processing</option>
-                            <option value="in_production">In Production</option>
+                            {/* <option value="processing">Processing</option> */}
+                            <option value="cutting_completed">Cutting Completed</option>
+                            <option value="sewing_started">Sewing Started</option>
+                            <option value="finishing">Finishing</option>
+                            <option value="qc_checked">QC Checked</option>
+                            <option value="packed">Packed</option>
                             <option value="shipped">Shipped</option>
+                            <option value="out_for_delivery">Out for Delivery</option>
                             <option value="completed">Completed</option>
                             <option value="cancelled">Cancelled</option>
                         </select>
