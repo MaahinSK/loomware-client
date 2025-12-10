@@ -16,6 +16,7 @@ const api = axios.create({
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
+        console.log('[API] Request to:', config.url, '| Token exists:', !!token);
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -31,10 +32,12 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
+            console.error('[API] 401 Error on:', error.config.url);
             // Handle unauthorized access
             localStorage.removeItem('token');
             // Don't redirect if checking auth status fails (user just isn't logged in)
             if (!error.config.url.includes('/auth/me')) {
+                console.log('[API] Redirecting to login...');
                 window.location.href = '/login';
             }
         }
